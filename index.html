@@ -1,0 +1,392 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LifeClock - 生命时钟</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Courier New', monospace;
+            background-color: #000;
+            color: #ff0000;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            background-image: 
+                radial-gradient(rgba(255, 0, 0, 0.1) 1px, transparent 1px),
+                radial-gradient(rgba(255, 0, 0, 0.1) 1px, transparent 1px);
+            background-size: 40px 40px;
+            background-position: 0 0, 20px 20px;
+        }
+
+        .container {
+            text-align: center;
+            padding: 20px;
+            max-width: 1000px;
+            width: 100%;
+            z-index: 10;
+        }
+
+        h1 {
+            font-size: 5rem;
+            margin-bottom: 10px;
+            text-transform: uppercase;
+            letter-spacing: 8px;
+            text-shadow: 0 0 10px #ff0000, 0 0 20px #ff0000, 0 0 30px #ff0000;
+            animation: flicker 3s infinite alternate;
+        }
+
+        @keyframes flicker {
+            0%, 19%, 21%, 23%, 25%, 54%, 56%, 100% {
+                opacity: 1;
+                text-shadow: 0 0 10px #ff0000, 0 0 20px #ff0000, 0 0 30px #ff0000;
+            }
+            20%, 24%, 55% {
+                opacity: 0.7;
+                text-shadow: none;
+            }
+        }
+
+        .subtitle {
+            font-size: 1.5rem;
+            margin-bottom: 40px;
+            color: #ff5555;
+            letter-spacing: 3px;
+        }
+
+        .clock-container {
+            margin: 40px 0;
+            position: relative;
+            perspective: 1000px;
+        }
+
+        #clock {
+            font-size: 8rem;
+            font-weight: bold;
+            letter-spacing: 10px;
+            text-shadow: 0 0 10px #ff0000, 0 0 20px #ff0000, 0 0 30px #ff0000, 0 0 40px #ff0000;
+            transition: all 0.1s ease;
+            margin: 20px 0;
+            animation: heartbeat 1.5s infinite;
+            position: relative;
+            z-index: 2;
+        }
+
+        @keyframes heartbeat {
+            0% { transform: scale(1); text-shadow: 0 0 10px #ff0000, 0 0 20px #ff0000, 0 0 30px #ff0000; }
+            10% { transform: scale(1.05); text-shadow: 0 0 15px #ff0000, 0 0 25px #ff0000, 0 0 35px #ff0000; }
+            20% { transform: scale(1); text-shadow: 0 0 10px #ff0000, 0 0 20px #ff0000, 0 0 30px #ff0000; }
+            30% { transform: scale(1.03); text-shadow: 0 0 12px #ff0000, 0 0 22px #ff0000, 0 0 32px #ff0000; }
+            40% { transform: scale(1); text-shadow: 0 0 10px #ff0000, 0 0 20px #ff0000, 0 0 30px #ff0000; }
+            100% { transform: scale(1); text-shadow: 0 0 10px #ff0000, 0 0 20px #ff0000, 0 0 30px #ff0000; }
+        }
+
+        .settings {
+            background-color: rgba(20, 0, 0, 0.7);
+            padding: 25px;
+            border-radius: 10px;
+            margin: 30px 0;
+            width: 100%;
+            border: 1px solid #ff0000;
+            box-shadow: 0 0 20px rgba(255, 0, 0, 0.3);
+        }
+
+        .input-group {
+            margin: 20px 0;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-size: 1.2rem;
+            color: #ff7777;
+        }
+
+        input {
+            padding: 15px;
+            font-size: 1.1rem;
+            border-radius: 0;
+            border: 1px solid #ff0000;
+            background-color: #000;
+            color: #ff0000;
+            width: 100%;
+            max-width: 300px;
+            font-family: 'Courier New', monospace;
+        }
+
+        input:focus {
+            outline: none;
+            box-shadow: 0 0 10px rgba(255, 0, 0, 0.5);
+        }
+
+        button {
+            background-color: #ff0000;
+            color: #000;
+            border: none;
+            padding: 15px 40px;
+            font-size: 1.3rem;
+            cursor: pointer;
+            margin: 20px 10px;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 3px;
+            font-weight: bold;
+            font-family: 'Courier New', monospace;
+            box-shadow: 0 0 15px rgba(255, 0, 0, 0.5);
+            position: relative;
+            overflow: hidden;
+        }
+
+        button:before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.4), transparent);
+            transition: 0.5s;
+        }
+
+        button:hover:before {
+            left: 100%;
+        }
+
+        button:hover {
+            background-color: #ff3333;
+            transform: translateY(-3px);
+            box-shadow: 0 5px 20px rgba(255, 0, 0, 0.7);
+        }
+
+        button:disabled {
+            background-color: #330000;
+            color: #660000;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+
+        .info {
+            margin-top: 30px;
+            color: #770000;
+            font-size: 1.1rem;
+            line-height: 1.8;
+            max-width: 700px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .blood {
+            position: absolute;
+            background-color: #ff0000;
+            border-radius: 50%;
+            pointer-events: none;
+            opacity: 0.7;
+        }
+
+        .death-symbol {
+            position: absolute;
+            font-size: 10rem;
+            opacity: 0.03;
+            z-index: 1;
+            color: #ff0000;
+        }
+
+        @media (max-width: 768px) {
+            h1 {
+                font-size: 3rem;
+                letter-spacing: 4px;
+            }
+            
+            #clock {
+                font-size: 4rem;
+                letter-spacing: 5px;
+            }
+            
+            .subtitle {
+                font-size: 1.1rem;
+                letter-spacing: 1px;
+            }
+            
+            .death-symbol {
+                font-size: 5rem;
+            }
+        }
+
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            10%, 30%, 50%, 70%, 90% { transform: translateX(-10px); }
+            20%, 40%, 60%, 80% { transform: translateX(10px); }
+        }
+    </style>
+</head>
+<body>
+    <!-- 背景装饰元素 -->
+    <div class="death-symbol" style="top: 10%; left: 5%;">†</div>
+    <div class="death-symbol" style="top: 70%; left: 85%;">☠</div>
+    <div class="death-symbol" style="top: 40%; left: 90%;">⍜</div>
+    <div class="death-symbol" style="top: 80%; left: 10%;">∅</div>
+
+    <div class="container">
+        <h1>生命倒计时</h1>
+        <div class="subtitle">LIFE IS FADING AWAY</div>
+        
+        <div class="clock-container">
+            <div id="clock">--------</div>
+        </div>
+        
+        <div class="settings">
+            <div class="input-group">
+                <label for="birthDate">出生日期:</label>
+                <input type="date" id="birthDate">
+            </div>
+            
+            <div class="input-group">
+                <label for="lifeExpectancy">预期寿命 (年):</label>
+                <input type="number" id="lifeExpectancy" min="1" max="150" value="75">
+            </div>
+            
+            <button id="startBtn">开始面对死亡</button>
+            <button id="resetBtn">重置</button>
+        </div>
+        
+        <div class="info">
+            <p>每一秒的流逝，都是你生命中不可挽回的一部分。</p>
+            <p>这不仅仅是一个时钟，这是你有限生命的可视化提醒。</p>
+            <p>当你看到这些数字在减少时，问问自己：我正在如何度过这宝贵的时间？</p>
+        </div>
+    </div>
+
+    <script>
+        // 创建血液滴落效果
+        function createBloodDrops() {
+            const bloodCount = 20;
+            for (let i = 0; i < bloodCount; i++) {
+                const blood = document.createElement('div');
+                blood.classList.add('blood');
+                blood.style.width = Math.random() * 20 + 5 + 'px';
+                blood.style.height = blood.style.width;
+                blood.style.left = Math.random() * 100 + 'vw';
+                blood.style.top = -20 + 'px';
+                blood.style.opacity = Math.random() * 0.5 + 0.1;
+                document.body.appendChild(blood);
+                
+                // 动画
+                const animation = blood.animate([
+                    { transform: 'translateY(0) rotate(0deg)', opacity: blood.style.opacity },
+                    { transform: `translateY(${window.innerHeight + 50}px) rotate(${Math.random() * 360}deg)`, opacity: 0 }
+                ], {
+                    duration: Math.random() * 10000 + 10000,
+                    easing: 'cubic-bezier(0.4, 0, 0.2, 1)'
+                });
+                
+                animation.onfinish = () => blood.remove();
+            }
+            
+            // 循环创建
+            setTimeout(createBloodDrops, Math.random() * 2000 + 500);
+        }
+        
+        let countdownInterval;
+        let isRunning = false;
+
+        document.addEventListener('DOMContentLoaded', function() {
+            const clockElement = document.getElementById('clock');
+            const startBtn = document.getElementById('startBtn');
+            const resetBtn = document.getElementById('resetBtn');
+            const birthDateInput = document.getElementById('birthDate');
+            const lifeExpectancyInput = document.getElementById('lifeExpectancy');
+
+            // 设置默认出生日期为25年前
+            const today = new Date();
+            const defaultBirthYear = today.getFullYear() - 25;
+            birthDateInput.value = `${defaultBirthYear}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`;
+            
+            // 创建血液滴落效果
+            createBloodDrops();
+
+            startBtn.addEventListener('click', startClock);
+            resetBtn.addEventListener('click', resetClock);
+
+            function startClock() {
+                if (isRunning) return;
+                
+                const birthDate = new Date(birthDateInput.value);
+                const lifeExpectancy = parseInt(lifeExpectancyInput.value);
+                
+                // 验证输入
+                if (isNaN(birthDate.getTime())) {
+                    alert('请输入有效的出生日期');
+                    return;
+                }
+                
+                if (isNaN(lifeExpectancy) || lifeExpectancy <= 0) {
+                    alert('请输入有效的预期寿命');
+                    return;
+                }
+                
+                isRunning = true;
+                startBtn.textContent = '时间正在流逝...';
+                startBtn.disabled = true;
+                
+                // 立即更新一次
+                updateClock(birthDate, lifeExpectancy);
+                
+                // 每秒更新一次
+                countdownInterval = setInterval(() => {
+                    updateClock(birthDate, lifeExpectancy);
+                }, 1000);
+            }
+
+            function updateClock(birthDate, lifeExpectancy) {
+                const now = new Date();
+                const ageInMs = now - birthDate;
+                const ageInYears = ageInMs / (1000 * 60 * 60 * 24 * 365.25);
+                
+                const secondsLeft = Math.max(0, Math.round((lifeExpectancy - ageInYears) * 365.25 * 24 * 60 * 60));
+                
+                // 格式化数字，添加千位分隔符
+                const formattedTime = secondsLeft.toLocaleString();
+                clockElement.textContent = formattedTime;
+                
+                // 如果时间到了，停止计时器
+                if (secondsLeft <= 0) {
+                    clearInterval(countdownInterval);
+                    isRunning = false;
+                    startBtn.textContent = '时间已到';
+                    startBtn.disabled = false;
+                    
+                    // 时间到时的特殊效果
+                    document.body.style.animation = 'shake 0.5s';
+                    setTimeout(() => {
+                        document.body.style.animation = '';
+                    }, 500);
+                }
+            }
+
+            function resetClock() {
+                clearInterval(countdownInterval);
+                isRunning = false;
+                clockElement.textContent = '--------';
+                startBtn.textContent = '开始面对死亡';
+                startBtn.disabled = false;
+                
+                // 重置为默认值（恢复为默认出生日期：25年前，以及预期寿命默认值）
+                const today = new Date();
+                const defaultBirthYear = today.getFullYear() - 25;
+                birthDateInput.value = `${defaultBirthYear}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`;
+                lifeExpectancyInput.value = '75';
+            }
+        });
+    </script>
+</body>
+</html>
